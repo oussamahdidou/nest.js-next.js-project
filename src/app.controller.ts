@@ -1,11 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, SetMetadata, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
+import { PermissionsGuard } from './authorisation/permissions/permissions.guard';
 
-@Controller()
+@Controller('main')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
+  @Get('test')
+  @UseGuards(PermissionsGuard)
+  @SetMetadata('permissions', ['read', 'execute'])
   getHello(): string {
     return this.appService.getHello();
   }
