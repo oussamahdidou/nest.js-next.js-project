@@ -8,7 +8,7 @@ export class AppController {
 
   @Get('test')
   @UseGuards(PermissionsGuard)
-  @SetMetadata('permissions', ['read', 'execute'])
+  @SetMetadata('permissions', ['read', 'write'])
   getHello(): string {
     return this.appService.getHello();
   }

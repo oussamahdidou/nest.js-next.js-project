@@ -13,12 +13,12 @@ import { ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     // UserModule,
-    //  TypeOrmModule.forRoot({
-    //   type: 'postgres',
+    // TypeOrmModule.forRoot({
+    // type: 'postgres',
     // host: 'localhost',
-    //     port: 5432,
-    //   username: 'yourways',
-    //  password: '123456',
+    // port: 5432,
+    // username: 'yourways',
+    // password: '123456',
     // database: 'yourways_db',
     // autoLoadEntities: true,
     // synchronize: true,
