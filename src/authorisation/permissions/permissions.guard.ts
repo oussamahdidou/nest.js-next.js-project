@@ -34,6 +34,12 @@ export class PermissionsGuard implements CanActivate {
       const hasAllRequiredPermissions = requiredPermissions.every(
         (permission) => jwtPermissions.includes(permission),
       );
+      /*
+      pour les roles on peut utiliser cette fonction
+      const hasAtLeastOneRequiredPermission = requiredPermissions.some(
+  (permission) => jwtPermissions.includes(permission),
+);
+ */
 
       if (requiredPermissions.length === 0 || hasAllRequiredPermissions) {
         return true;
