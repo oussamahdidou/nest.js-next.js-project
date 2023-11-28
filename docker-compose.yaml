@@ -1,18 +1,35 @@
 # i m adding this data base configuration to the folder
-# to execute this file you need to use the next command : docker-compose up -d    
+# to execute this file you need to use the next command : docker-compose up -d
 
 version: '3.8'
 services:
-  db:
+  dev-db:
     image: postgres:latest
     restart: always
-    container_name: yourways
     environment:
       POSTGRES_USER: yourways
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: yourways_db
     ports:
       - '5432:5432'
+    networks:
+      - yourways
+  test-db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: yourways
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: yourways_db
+    ports:
+      - '5433:5432'
+    networks:
+      - yourways
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9090:8080
     networks:
       - yourways
 networks:
