@@ -1,3 +1,4 @@
+import { JwtModule } from './jwt.module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,8 +10,10 @@ import { VehicleModule } from './vehicle/vehicle.module';
 import { ConfigModule } from '@nestjs/config';
 import { DriverModule } from './driver/driver.module';
 
+
 @Module({
   imports: [
+    JwtModule,
     UserModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
