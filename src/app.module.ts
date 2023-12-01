@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 
+
 @Module({
   imports: [
     JwtModule,
@@ -20,6 +21,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    
   ],
   controllers: [AppController],
   providers: [AppService],
