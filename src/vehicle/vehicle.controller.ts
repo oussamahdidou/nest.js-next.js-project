@@ -11,10 +11,10 @@ import {
 import { VehicleService } from './vehicle.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
-import { GetUser } from 'src/auth/decorator';
-import { JwtGuard } from 'src/auth/guard';
+import { GetUser, Roles } from 'src/auth/decorator';
+import { JwtGuard, RolesGuard } from 'src/auth/guard';
 
-@UseGuards(JwtGuard)
+@UseGuards(JwtGuard, RolesGuard)
 @Controller('vehicles')
 export class VehicleController {
   constructor(private readonly vehicleService: VehicleService) {}
@@ -26,7 +26,7 @@ export class VehicleController {
   ) {
     return this.vehicleService.create(createVehicleDto, user_id);
   }
-
+  @Roles('supervisor', 'driver')
   @Get()
   findAll(@GetUser('id') user_id: number) {
     return this.vehicleService.findAll(user_id);

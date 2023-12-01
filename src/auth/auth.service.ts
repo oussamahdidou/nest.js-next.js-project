@@ -132,7 +132,7 @@ export class AuthService {
       const newDriver = await this.driverRepository.save(user);
       const newUser = await this.usersRepository.save(user);
 
-      return this.signToken(newUser.id, newUser.email, newUser.role);
+      return this.signToken(newDriver.id, newUser.email, newUser.role);
     } catch (error) {
       if (error.code === '23505') {
         // Unique constraint violation (e.g., duplicate email)

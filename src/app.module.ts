@@ -10,7 +10,6 @@ import { VehicleModule } from './vehicle/vehicle.module';
 import { ConfigModule } from '@nestjs/config';
 import { DriverModule } from './driver/driver.module';
 
-
 @Module({
   imports: [
     JwtModule,
