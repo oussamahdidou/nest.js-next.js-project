@@ -10,8 +10,6 @@ import { VehicleModule } from './vehicle/vehicle.module';
 import { ConfigModule } from '@nestjs/config';
 import { DriverModule } from './driver/driver.module';
 
-
-
 @Module({
   imports: [
     JwtModule,
@@ -20,8 +18,8 @@ import { DriverModule } from './driver/driver.module';
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'postgres',
-      password: 'tracker',
+      username: 'yourways',
+      password: '123456',
       database: 'yourways_db',
       autoLoadEntities: true,
       synchronize: true,
