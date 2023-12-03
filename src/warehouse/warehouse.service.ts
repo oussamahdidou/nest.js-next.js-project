@@ -3,8 +3,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
-import { Warehouse } from './entities/warehouse.entity';
-import { CreateWarehouseDto, UpdateWarehouseDto, GetByIdDto } from './dto/warehouse.dto';
+import { CreateWarehouseDto../entities/warehouse.entityIdDto } from './dto/warehouse.dto';
 
 @Injectable()
 export class WarehouseService {

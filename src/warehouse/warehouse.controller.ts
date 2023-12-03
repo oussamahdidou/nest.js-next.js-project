@@ -2,7 +2,7 @@
 
 import { Controller, Get, Param, Post, Body, Put, ParseIntPipe } from '@nestjs/common';
 import { WarehouseService } from './warehouse.service';
-import { Warehouse } from './entities/warehouse.entity';
+import { Warehouse } from '../entities/warehouse.entity';
 import { CreateWarehouseDto, GetByIdDto, UpdateWarehouseDto } from './dto/warehouse.dto';
 
 
