@@ -1,11 +1,14 @@
 
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
-@Entity()
+@Entity('warehouse')
 export class Warehouse {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   location: string;
+  
+ // @OneToMany(() => Product, product => product.warehouse)
+  //products: Product;
 }
