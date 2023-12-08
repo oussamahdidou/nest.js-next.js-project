@@ -1,16 +1,16 @@
 import { RoleType } from '../enumerations/role.enum';
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  PrimaryColumn,
 } from 'typeorm';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn('uuid')
+  id: string;
 
   @Column({ unique: true })
   email: string;
@@ -18,10 +18,8 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ type: 'enum', enum: RoleType, default: RoleType.SUPERVISOR })
+  @Column({ type: 'enum', enum: RoleType, default: RoleType.ADMIN })
   role: RoleType;
-
-  // other information about the user
 
   @Column()
   firstName: string;

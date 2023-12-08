@@ -16,7 +16,7 @@ export class VehicleService {
 
   async create(
     createVehicleDto: CreateVehicleDto,
-    userId: number,
+    userId: string,
   ): Promise<Vehicle> {
     const driver = await this.driverRepository.findOne({
       where: {
@@ -38,7 +38,7 @@ export class VehicleService {
     return this.vehicleRepository.save(vehicle);
   }
 
-  async findAll(user_id: number) {
+  async findAll(user_id: string) {
     const carList = await this.vehicleRepository.find({
       where: {
         driver: {
@@ -49,16 +49,36 @@ export class VehicleService {
     return carList;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} vehicle`;
+  async findOne(id: number): Promise<Vehicle | undefined> {
+    return this.vehicleRepository.findOneBy({ vehicle_id: id });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  update(id: number, updateVehicleDto: UpdateVehicleDto) {
-    return `This action updates a #${id} vehicle`;
+  async update(
+    id: number,
+    updateVehicleDto: UpdateVehicleDto,
+  ): Promise<Vehicle> {
+    const vehicle = await this.findOne(id);
+
+    if (!vehicle) {
+      throw new NotFoundException(`Vehicle with id ${id} not found`);
+    }
+
+    // Use TypeORM's merge to update the entity
+    const updatedVehicle = this.vehicleRepository.merge(
+      vehicle,
+      updateVehicleDto,
+    );
+
+    return this.vehicleRepository.save(updatedVehicle);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} vehicle`;
+  async remove(id: number): Promise<void> {
+    const vehicle = await this.findOne(id);
+
+    if (!vehicle) {
+      throw new NotFoundException(`Vehicle with id ${id} not found`);
+    }
+
+    await this.vehicleRepository.remove(vehicle);
   }
 }

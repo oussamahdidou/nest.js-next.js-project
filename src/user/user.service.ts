@@ -4,29 +4,30 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Repository } from 'typeorm';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private authService: AuthService,
   ) {}
 
   findAll() {
     return this.usersRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     return await this.usersRepository.findOneBy({ id });
   }
   create(createUserDto: CreateUserDto) {
-    const user = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(user);
+    return this.authService.signupUser(createUserDto);
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.usersRepository.preload({
-      id: +id,
+      id: id,
       ...updateUserDto,
     });
     if (!user) {
@@ -35,7 +36,7 @@ export class UserService {
     return this.usersRepository.save(user);
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const user = await this.findOne(id);
     return this.usersRepository.remove(user);
   }

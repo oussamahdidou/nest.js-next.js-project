@@ -22,13 +22,13 @@ export class VehicleController {
   @Post()
   create(
     @Body() createVehicleDto: CreateVehicleDto,
-    @GetUser('id') user_id: number,
+    @GetUser('id') user_id: string,
   ) {
     return this.vehicleService.create(createVehicleDto, user_id);
   }
   @Roles('supervisor', 'driver')
   @Get()
-  findAll(@GetUser('id') user_id: number) {
+  findAll(@GetUser('id') user_id: string) {
     return this.vehicleService.findAll(user_id);
   }
 

@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToOne,
 } from 'typeorm';
 import { Driver } from './driver.entity';
+import { AvailableDriver } from './availableDriver.entity';
 
 @Entity('vehicles')
 export class Vehicle {
@@ -30,4 +32,11 @@ export class Vehicle {
 
   @ManyToOne(() => Driver, (driver) => driver.vehicles)
   driver: Driver;
+
+  @OneToOne(
+    () => AvailableDriver,
+    (availableDriver) => availableDriver.vehicle,
+    { nullable: true, onDelete: 'CASCADE' },
+  )
+  availableDriver: AvailableDriver;
 }
