@@ -9,8 +9,6 @@ import { OwnerModule } from './owner/owner.module';
 import { VehicleModule } from './vehicle/vehicle.module';
 import { ConfigModule } from '@nestjs/config';
 import { DriverModule } from './driver/driver.module';
-import { WarehouseModule } from './warehouse/warehouse.module';
-import { PaymentModule } from './payment/payment.module';
 
 
 @Module({
@@ -34,8 +32,6 @@ import { PaymentModule } from './payment/payment.module';
     DriverModule,
     OwnerModule,
     VehicleModule,
-    PaymentModule,
-    WarehouseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
