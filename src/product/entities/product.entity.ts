@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Package } from 'src/package/entities/package.entity';
+import { Package } from 'src/entities/package.entity';
 
 @Entity('products')
 export class Product {
@@ -23,7 +23,9 @@ export class Product {
 
   @Column({ type: 'date' })
   deliveryDate: Date;
-  
-  @ManyToOne(() => Package,  packageEntity =>  packageEntity.products, { onDelete: 'CASCADE' }) 
+
+  @ManyToOne(() => Package, (packageEntity) => packageEntity.products, {
+    onDelete: 'CASCADE',
+  })
   package: Package;
 }

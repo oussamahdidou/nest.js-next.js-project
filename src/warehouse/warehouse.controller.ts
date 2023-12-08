@@ -1,10 +1,17 @@
 // warehouse.controller.ts
 
-import { Controller, Get, Param, Post, Body, Put, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  Put,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { WarehouseService } from './warehouse.service';
-import { Warehouse } from './entities/warehouse.entity';
-import { CreateWarehouseDto, GetByIdDto, UpdateWarehouseDto } from './dto/warehouse.dto';
-
+import { Warehouse } from '../entities/warehouse.entity';
+import { CreateWarehouseDto, UpdateWarehouseDto } from './dto/warehouse.dto';
 
 @Controller('warehouse')
 export class WarehouseController {
@@ -14,7 +21,9 @@ export class WarehouseController {
     return this.warehouseService.findAll();
   }
   @Get(':id')
-  findById(@Param('id', ParseIntPipe) id: number): Promise<Warehouse | undefined> {
+  findById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Warehouse | undefined> {
     return this.warehouseService.findById(id);
   }
 
@@ -24,7 +33,10 @@ export class WarehouseController {
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() updateWarehouseDto: UpdateWarehouseDto): Promise<Warehouse> {
+  update(
+    @Param('id') id: number,
+    @Body() updateWarehouseDto: UpdateWarehouseDto,
+  ): Promise<Warehouse> {
     return this.warehouseService.update(id, updateWarehouseDto);
   }
 }

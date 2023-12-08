@@ -30,18 +30,18 @@ export class UserController {
   }
 
   @Get('info')
-  findOne(@GetUser('id') user_id: number, @GetUser('email') email: string) {
+  findOne(@GetUser('id') user_id: string, @GetUser('email') email: string) {
     console.log({ user_id, email });
     return this.userService.findOne(user_id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+    return this.userService.remove(id);
   }
 }

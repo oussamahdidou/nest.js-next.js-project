@@ -1,5 +1,5 @@
 import { RoleType } from 'src/enumerations/role.enum';
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, JoinColumn, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 import { Vehicle } from './vehicle.entity';
 
@@ -10,6 +10,12 @@ export class Driver extends User {
 
   @Column()
   permitPoints: number;
+
+  @Column({ default: 0 })
+  score: number;
+
+  @Column({ default: 0 })
+  penalty: number;
 
   constructor() {
     super();

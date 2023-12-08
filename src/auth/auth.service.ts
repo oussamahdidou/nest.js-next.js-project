@@ -4,28 +4,35 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
+import { UpdateUserDto } from '../user/dto/update-user.dto';
+
 // the are many ways to hash the password (bcrypt , argon ...) in here i'm using argon
 import * as argon from 'argon2';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RoleType } from '../enumerations/role.enum';
 import { CreateOwnerDto } from '../owner/dto/create-owner.dto';
 import { CreateDriverDto } from '../driver/dto/create-driver.dto';
-import { User, Owner, Driver } from '../entities';
+import { User, Owner, Driver, Supervisor } from '../entities';
 import { Logger } from '@nestjs/common';
-import { Vehicle } from 'src/entities/vehicle.entity';
+import { CreateSupervisorDto } from 'src/supervisor/dto/create-supervisor.dto';
+import { WarehouseService } from 'src/warehouse/warehouse.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   constructor(
+    // Repositories
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Driver) private driverRepository: Repository<Driver>,
     @InjectRepository(Owner) private ownerRepository: Repository<Owner>,
-    @InjectRepository(Vehicle) private vehicleRepository: Repository<Vehicle>,
+    @InjectRepository(Supervisor)
+    private supervisorRepository: Repository<Supervisor>,
+    // Services
+    private readonly warehouseService: WarehouseService,
     private jwt: JwtService,
     private config: ConfigService,
   ) {}
@@ -36,12 +43,8 @@ export class AuthService {
       const hash = await argon.hash(dto.password);
       // add the user to the db
       const user = this.usersRepository.create({
-        email: dto.email,
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        CNI: dto.CNI,
-        dateBirth: dto.dateBirth,
-        phoneNumber: dto.phoneNumber,
+        ...dto,
+        id: uuidv4(),
         password: hash,
       });
       // return the saved user
@@ -68,19 +71,20 @@ export class AuthService {
       const hash = await argon.hash(dto.password);
       // add the user to the db
       const user = this.ownerRepository.create({
-        email: dto.email,
-        role: dto.role,
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        CNI: dto.CNI,
-        dateBirth: dto.dateBirth,
-        phoneNumber: dto.phoneNumber,
-        companyName: dto.companyName,
-        companyRegistrationNumber: dto.companyRegistrationNumber,
+        ...dto,
+        id: uuidv4(),
         password: hash,
       });
       // return the saved user
-      const newUser = await this.ownerRepository.save(user);
+      const newUser = await this.usersRepository.save(user);
+
+      const owner = this.ownerRepository.create({
+        ...dto,
+        id: newUser.id,
+        password: hash,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const newOwner = await this.ownerRepository.save(owner);
 
       return this.signToken(newUser.id, newUser.email, newUser.role);
     } catch (error) {
@@ -102,37 +106,65 @@ export class AuthService {
       // generate the hashed password
       const hash = await argon.hash(dto.password);
       // add the user to the db
-      const user = this.driverRepository.create({
-        email: dto.email,
-        role: dto.role,
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        CNI: dto.CNI,
-        dateBirth: dto.dateBirth,
-        phoneNumber: dto.phoneNumber,
-        drivingLicence: dto.drivingLicence,
-        permitPoints: dto.permitPoints,
+      const user = this.usersRepository.create({
+        ...dto,
+        id: uuidv4(),
         password: hash,
       });
 
-      // const vehicles = dto.vehicles.map((CreateVehicleDto) =>
-      //   this.vehicleRepository.create({
-      //     marque: CreateVehicleDto.marque,
-      //     model: CreateVehicleDto.model,
-      //     registrationNumber: CreateVehicleDto.registrationNumber,
-      //     driver: user, // Set the association
-      //   }),
-      // );
-
-      // // Assign vehicles to the driver
-      // user.vehicles = vehicles;
-
       // return the saved user
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const newDriver = await this.driverRepository.save(user);
       const newUser = await this.usersRepository.save(user);
 
-      return this.signToken(newDriver.id, newUser.email, newUser.role);
+      const driver = this.driverRepository.create({
+        ...dto,
+        id: newUser.id,
+        password: hash,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const newDriver = await this.driverRepository.save(driver);
+
+      return this.signToken(newUser.id, newUser.email, newUser.role);
+    } catch (error) {
+      if (error.code === '23505') {
+        // Unique constraint violation (e.g., duplicate email)
+        throw new ForbiddenException('Credentials incorrect');
+      } else {
+        // Handle other errors
+        this.logger.error(
+          `Error during signupUser: ${error.message}`,
+          error.stack,
+        );
+        throw new InternalServerErrorException('Internal Server Error');
+      }
+    }
+  }
+
+  async signupSupervisor(dto: CreateSupervisorDto) {
+    try {
+      // generate the hashed password
+      const hash = await argon.hash(dto.password);
+      // add the user to the db
+      const user = this.usersRepository.create({
+        ...dto,
+        id: uuidv4(),
+        password: hash,
+      });
+      const newUser = await this.usersRepository.save(user);
+
+      const supervisor = this.supervisorRepository.create({
+        ...dto,
+        id: newUser.id,
+        password: hash,
+      });
+      supervisor.warehouse = await this.warehouseService.findById(
+        dto.warehouseId,
+      );
+      // return the saved user
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const newSupervisor = await this.supervisorRepository.save(supervisor);
+
+      return this.signToken(newUser.id, newUser.email, newUser.role);
     } catch (error) {
       if (error.code === '23505') {
         // Unique constraint violation (e.g., duplicate email)
@@ -165,7 +197,7 @@ export class AuthService {
 
   // Generation of the jwt token
   async signToken(
-    userId: number,
+    userId: string,
     email: string,
     role: RoleType,
   ): Promise<{ access_token: string }> {

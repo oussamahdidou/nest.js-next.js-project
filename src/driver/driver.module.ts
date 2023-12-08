@@ -3,10 +3,32 @@ import { DriverService } from './driver.service';
 import { DriverController } from './driver.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Driver } from 'src/entities';
+import {
+  AvailableDriver,
+  Driver,
+  User,
+  Vehicle,
+  Warehouse,
+} from 'src/entities';
+import { WarehouseModule } from 'src/warehouse/warehouse.module';
+import { VehicleModule } from 'src/vehicle/vehicle.module';
+import { WarehouseService } from 'src/warehouse/warehouse.service';
+import { VehicleService } from 'src/vehicle/vehicle.service';
+
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([Driver])],
+  imports: [
+    AuthModule,
+    WarehouseModule,
+    VehicleModule,
+    TypeOrmModule.forFeature([
+      User,
+      Driver,
+      AvailableDriver,
+      Vehicle,
+      Warehouse,
+    ]),
+  ],
   controllers: [DriverController],
-  providers: [DriverService],
+  providers: [DriverService, WarehouseService, VehicleService],
 })
 export class DriverModule {}

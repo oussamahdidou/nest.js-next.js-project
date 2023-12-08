@@ -1,10 +1,14 @@
 // warehouse.service.ts
 
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
-import { Warehouse } from './entities/warehouse.entity';
-import { CreateWarehouseDto, UpdateWarehouseDto, GetByIdDto } from './dto/warehouse.dto';
+import { Warehouse } from '../entities/warehouse.entity';
+import { CreateWarehouseDto, UpdateWarehouseDto } from './dto/warehouse.dto';
 
 @Injectable()
 export class WarehouseService {
@@ -13,7 +17,7 @@ export class WarehouseService {
     private readonly warehouseRepository: Repository<Warehouse>,
   ) {}
 
-  async findById(id: number): Promise<Warehouse | undefined> {
+  async findById(id: number): Promise<Warehouse> {
     try {
       const options: FindOneOptions<Warehouse> = { where: { id } };
       return await this.warehouseRepository.findOneOrFail(options);
@@ -37,7 +41,9 @@ export class WarehouseService {
       return await this.warehouseRepository.save(warehouse);
     } catch (error) {
       console.error(error);
-      throw new BadRequestException('Erreur lors de la création de l\'entrepôt.');
+      throw new BadRequestException(
+        "Erreur lors de la création de l'entrepôt.",
+      );
     }
   }
 
@@ -50,5 +56,19 @@ export class WarehouseService {
       console.error(error);
       throw new NotFoundException('Entrepôt non trouvé.');
     }
+  }
+
+  async findWarehouses(warehouseIds: number[]): Promise<Warehouse[]> {
+    const warehouses = await Promise.all(
+      warehouseIds.map(async (id) => {
+        const warehouse = await this.findById(id);
+        if (!warehouse) {
+          throw new NotFoundException(`Warehouse with ID ${id} not found`);
+        }
+        return warehouse;
+      }),
+    );
+
+    return warehouses;
   }
 }

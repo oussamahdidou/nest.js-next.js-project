@@ -4,16 +4,32 @@ import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy';
-import { Driver, Owner, User } from '../entities';
-import { Vehicle } from 'src/entities/vehicle.entity';
+import {
+  Driver,
+  Owner,
+  Supervisor,
+  User,
+  Vehicle,
+  Warehouse,
+} from '../entities';
+import { WarehouseModule } from 'src/warehouse/warehouse.module';
+import { WarehouseService } from 'src/warehouse/warehouse.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Driver, Owner, Vehicle]),
+    WarehouseModule,
+    TypeOrmModule.forFeature([
+      User,
+      Driver,
+      Owner,
+      Vehicle,
+      Supervisor,
+      Warehouse,
+    ]),
     JwtModule.register({}),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, WarehouseService],
   exports: [AuthService],
 })
 export class AuthModule {}
