@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Package } from 'src/entities/package.entity';
+import { Warehouse } from 'src/entities/warehouse.entity';
 
 @Entity('products')
 export class Product {
@@ -24,6 +25,10 @@ export class Product {
   @Column({ type: 'date' })
   deliveryDate: Date;
 
+  @ManyToOne(() => Warehouse, warehouse => warehouse.products)
+  @JoinColumn({ name: 'warehouse_id' }) 
+  
+  warehouse: Warehouse;
   @ManyToOne(() => Package, (packageEntity) => packageEntity.products, {
     onDelete: 'CASCADE',
   })
