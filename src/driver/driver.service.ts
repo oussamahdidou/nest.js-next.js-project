@@ -59,14 +59,27 @@ export class DriverService {
 
   // end CRUD operations
   @Cron(CronExpression.EVERY_MINUTE)
-  async removeOutdatedAvailableDrivers() {
+  async archiveOutdatedAvailableDrivers() {
     const currentDate = new Date();
     await this.availableDriverRepository
       .createQueryBuilder()
-      .delete()
-      .from(AvailableDriver)
+      .update(AvailableDriver)
+      .set({ archived: true })
       .where('startTime < :currentDate', { currentDate })
       .execute();
+  }
+
+  async findOneavAilableDriver(available_driver_id: number) {
+    const available_driver = await this.availableDriverRepository.findOneBy({
+      available_driver_id,
+    });
+    if (!available_driver) {
+      throw new NotFoundException(
+        `Driver with ID ${available_driver} not found`,
+      );
+    }
+
+    return available_driver;
   }
 
   async mentionAvailability(createAvailabilityDto: CreateAvailableDriverDto) {
@@ -98,8 +111,14 @@ export class DriverService {
     }
   }
 
+  async getNonArchivedAvailableDrivers(): Promise<AvailableDriver[]> {
+    return this.availableDriverRepository.find({
+      where: { archived: false },
+    });
+  }
+
   async sortAvailableDrivers(): Promise<AvailableDriver[]> {
-    const availableDrivers = await this.availableDriverRepository.find();
+    const availableDrivers = await this.getNonArchivedAvailableDrivers();
 
     // Sort drivers based on calculated score
     const sortedDrivers = availableDrivers.sort((a, b) => {

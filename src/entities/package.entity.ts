@@ -6,7 +6,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Product } from '../product/entities/product.entity';
-// import { Delivery } from './delivery.entity';
+import { Delivery } from './delivery.entity';
 
 @Entity()
 export class Package {
@@ -22,6 +22,6 @@ export class Package {
   @OneToMany(() => Product, (product) => product.package)
   products: Product[];
 
-  // @ManyToOne(() => Delivery, (delivery) => delivery.packages)
-  // delivery: Delivery;
+  @ManyToOne(() => Delivery, (delivery) => delivery.packages)
+  delivery: Delivery;
 }

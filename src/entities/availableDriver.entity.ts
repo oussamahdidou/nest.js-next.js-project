@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Vehicle } from './vehicle.entity';
 import { Warehouse } from './warehouse.entity';
+import { Delivery } from './delivery.entity';
 
 @Entity('available_drivers')
 export class AvailableDriver {
@@ -32,6 +33,9 @@ export class AvailableDriver {
   @Column()
   availableWeight: number;
 
+  @Column({ default: false })
+  archived: boolean;
+
   @ManyToOne(() => Warehouse)
   @JoinColumn({ name: 'start_warehouse_id' })
   startWarehouse: Warehouse;
@@ -43,4 +47,10 @@ export class AvailableDriver {
   @ManyToMany(() => Warehouse)
   @JoinTable()
   waypoints: Warehouse[];
+
+  @OneToOne(() => Delivery, (delivery) => delivery.availableDriver, {
+    nullable: true,
+  })
+  @JoinColumn()
+  delivery: Delivery | null;
 }
