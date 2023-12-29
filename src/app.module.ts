@@ -14,6 +14,7 @@ import { WarehouseModule } from './warehouse/warehouse.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SupervisorModule } from './supervisor/supervisor.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { SupervisorModule } from './supervisor/supervisor.module';
     WarehouseModule,
     DeliveryModule,
     SupervisorModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
