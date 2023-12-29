@@ -19,7 +19,9 @@ export class PackageService {
   }
 
   async findOne(id: number): Promise<Package | undefined> {
-    const foundPackage = await this.packageRepository.findOneById(id);
+    const foundPackage = await this.packageRepository.findOneBy({
+      packageId: id,
+    });
     if (!foundPackage) {
       throw new NotFoundException(`Package with ID ${id} not found`);
     }
@@ -42,5 +44,19 @@ export class PackageService {
   async remove(id: number) {
     const deleteResult = await this.packageRepository.delete(id);
     return deleteResult.affected > 0;
+  }
+
+  async findPackages(PackageIds: number[]): Promise<Package[]> {
+    const packages = await Promise.all(
+      PackageIds.map(async (id) => {
+        const packagee = await this.findOne(id);
+        if (!packagee) {
+          throw new NotFoundException(`Warehouse with ID ${id} not found`);
+        }
+        return packagee;
+      }),
+    );
+
+    return packages;
   }
 }

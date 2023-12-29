@@ -1,5 +1,5 @@
 import { RoleType } from 'src/enumerations/role.enum';
-import { Entity, Column, OneToMany, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 import { Vehicle } from './vehicle.entity';
 
