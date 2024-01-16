@@ -31,32 +31,26 @@ export class AuthService {
     @InjectRepository(Owner) private ownerRepository: Repository<Owner>,
     @InjectRepository(Supervisor)
     private supervisorRepository: Repository<Supervisor>,
-    // Services
-    private readonly warehouseService: WarehouseService,
+    private warehouseService: WarehouseService,
     private jwt: JwtService,
     private config: ConfigService,
   ) {}
 
   async signupUser(dto: CreateUserDto) {
     try {
-      // generate the hashed password
       const hash = await argon.hash(dto.password);
-      // add the user to the db
       const user = this.usersRepository.create({
         ...dto,
         id: uuidv4(),
+        role: RoleType.ADMIN,
         password: hash,
       });
-      // return the saved user
       const newUser = await this.usersRepository.save(user);
-
       return this.signToken(newUser.id, newUser.email, newUser.role);
     } catch (error) {
       if (error.code === '23505') {
-        // Unique constraint violation (e.g., duplicate email)
         throw new ForbiddenException('Credentials incorrect');
       } else {
-        // Handle other errors
         this.logger.error(
           `Error during signupUser: ${error.message}`,
           error.stack,
@@ -67,20 +61,19 @@ export class AuthService {
   }
   async signupOwner(dto: CreateOwnerDto) {
     try {
-      // generate the hashed password
       const hash = await argon.hash(dto.password);
-      // add the user to the db
       const user = this.ownerRepository.create({
         ...dto,
         id: uuidv4(),
+        role: RoleType.OWNER,
         password: hash,
       });
-      // return the saved user
       const newUser = await this.usersRepository.save(user);
 
       const owner = this.ownerRepository.create({
         ...dto,
         id: newUser.id,
+        role: RoleType.OWNER,
         password: hash,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -89,10 +82,8 @@ export class AuthService {
       return this.signToken(newUser.id, newUser.email, newUser.role);
     } catch (error) {
       if (error.code === '23505') {
-        // Unique constraint violation (e.g., duplicate email)
         throw new ForbiddenException('Credentials incorrect');
       } else {
-        // Handle other errors
         this.logger.error(
           `Error during signupUser: ${error.message}`,
           error.stack,
@@ -103,21 +94,20 @@ export class AuthService {
   }
   async signupDriver(dto: CreateDriverDto) {
     try {
-      // generate the hashed password
       const hash = await argon.hash(dto.password);
-      // add the user to the db
       const user = this.usersRepository.create({
         ...dto,
         id: uuidv4(),
+        role: RoleType.DRIVER,
         password: hash,
       });
 
-      // return the saved user
       const newUser = await this.usersRepository.save(user);
 
       const driver = this.driverRepository.create({
         ...dto,
         id: newUser.id,
+        role: RoleType.DRIVER,
         password: hash,
       });
 
@@ -148,19 +138,18 @@ export class AuthService {
       const user = this.usersRepository.create({
         ...dto,
         id: uuidv4(),
+        role: RoleType.SUPERVISOR,
         password: hash,
       });
       const newUser = await this.usersRepository.save(user);
-
+      const warehouse = await this.warehouseService.findById(dto.warehouseId);
       const supervisor = this.supervisorRepository.create({
         ...dto,
         id: newUser.id,
+        warehouse,
+        role: RoleType.SUPERVISOR,
         password: hash,
       });
-      supervisor.warehouse = await this.warehouseService.findById(
-        dto.warehouseId,
-      );
-      // return the saved user
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const newSupervisor = await this.supervisorRepository.save(supervisor);
 
@@ -179,7 +168,6 @@ export class AuthService {
       }
     }
   }
-
   async signin(dto: UpdateUserDto) {
     // find the user with the email
     const user = await this.usersRepository.findOne({
@@ -194,8 +182,6 @@ export class AuthService {
 
     return this.signToken(user.id, user.email, user.role);
   }
-
-  // Generation of the jwt token
   async signToken(
     userId: string,
     email: string,

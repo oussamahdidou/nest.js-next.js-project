@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  Point,
+} from 'typeorm';
 import { AvailableDriver } from './availableDriver.entity';
 import { Supervisor } from './supervisor.entity';
 
@@ -10,8 +16,8 @@ export class Warehouse {
   @Column()
   city: string;
 
-  @Column()
-  location: string;
+  @Column({ type: 'point' })
+  location: Point;
 
   @OneToMany(
     () => AvailableDriver,

@@ -6,11 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { DeliveryService } from './delivery.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
+import { GetUser } from 'src/auth/decorator';
+import { JwtGuard, RolesGuard } from 'src/auth/guard';
 
+@UseGuards(JwtGuard, RolesGuard)
 @Controller('delivery')
 export class DeliveryController {
   constructor(private readonly deliveryService: DeliveryService) {}
@@ -23,6 +27,11 @@ export class DeliveryController {
   @Get()
   findAll() {
     return this.deliveryService.findAll();
+  }
+
+  @Get('mine')
+  findMyAll(@GetUser('id') user_id: string) {
+    return this.deliveryService.findMyAll(user_id);
   }
 
   @Get(':id')

@@ -6,16 +6,20 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { SupervisorService } from './supervisor.service';
 import { CreateSupervisorDto } from './dto/create-supervisor.dto';
 import { UpdateSupervisorDto } from './dto/update-supervisor.dto';
+import { GetUser } from 'src/auth/decorator';
+import { JwtGuard, RolesGuard } from 'src/auth/guard';
 
+@UseGuards(JwtGuard, RolesGuard)
 @Controller('supervisor')
 export class SupervisorController {
   constructor(private readonly supervisorService: SupervisorService) {}
 
-  @Post()
+  @Post('signup')
   create(@Body() createSupervisorDto: CreateSupervisorDto) {
     return this.supervisorService.create(createSupervisorDto);
   }
@@ -41,5 +45,15 @@ export class SupervisorController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.supervisorService.remove(id);
+  }
+
+  @Get('products/in-warehouse')
+  findProductsInWarehouse(@GetUser('id') user_id: string) {
+    return this.supervisorService.findProductsInWarehouse(user_id);
+  }
+
+  @Get('packages/in-warehouse')
+  findPackagesBySupervisor(@GetUser('id') user_id: string) {
+    return this.supervisorService.findPackagesBySupervisor(user_id);
   }
 }

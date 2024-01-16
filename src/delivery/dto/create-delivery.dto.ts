@@ -1,10 +1,10 @@
 import {
   IsNotEmpty,
   IsNumber,
-  IsDate,
   IsArray,
   IsEnum,
   IsOptional,
+  IsDateString,
 } from 'class-validator';
 import { DeliveryStatus } from 'src/enumerations/delivery-status.enum';
 
@@ -25,13 +25,12 @@ export class CreateDeliveryDto {
   @IsArray()
   waypoints: number[];
 
-  @IsDate()
+  @IsDateString()
   startTime: Date;
 
-  @IsDate()
+  @IsDateString()
   endTime: Date;
 
   @IsEnum(DeliveryStatus)
-  @IsOptional()
   status: DeliveryStatus = DeliveryStatus.PENDING;
 }
