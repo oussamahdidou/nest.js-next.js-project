@@ -12,7 +12,7 @@ import {
 import { Package } from './package.entity';
 import { Warehouse } from './warehouse.entity';
 import { AvailableDriver } from './availableDriver.entity';
-import { IsNotEmpty, IsEnum } from 'class-validator';
+import { IsEnum } from 'class-validator';
 import { DeliveryStatus } from 'src/enumerations/delivery-status.enum';
 import { EvaluationDelivery } from './evaluation-delivery.entity';
 
@@ -28,7 +28,7 @@ export class Delivery {
   @JoinColumn()
   availableDriver: AvailableDriver;
 
-  @OneToMany(() => Package, (packagee) => packagee.delivery, { eager: true })
+  @OneToMany(() => Package, (packagee) => packagee.delivery)
   packages: Package[];
 
   @ManyToOne(() => Warehouse, { eager: true })
@@ -41,14 +41,14 @@ export class Delivery {
   @JoinTable()
   waypoints: Warehouse[];
 
-  @Column({ type: 'datetime' })
+  @Column()
   startTime: Date;
 
-  @Column({ type: 'datetime' })
+  @Column()
   endTime: Date;
 
-  @IsNotEmpty()
   @IsEnum(DeliveryStatus)
+  @Column({ default: DeliveryStatus.PENDING })
   status: DeliveryStatus;
 
   @OneToMany(

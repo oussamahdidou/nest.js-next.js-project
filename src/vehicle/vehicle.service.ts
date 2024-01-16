@@ -25,13 +25,10 @@ export class VehicleService {
     });
 
     if (!driver) {
-      // Handle the case where the driver is not found
       throw new NotFoundException(`Driver with id ${userId} not found`);
     }
     const vehicle = this.vehicleRepository.create({
-      marque: createVehicleDto.marque,
-      model: createVehicleDto.model,
-      registrationNumber: createVehicleDto.registrationNumber,
+      ...createVehicleDto,
       driver,
     });
 
@@ -63,7 +60,6 @@ export class VehicleService {
       throw new NotFoundException(`Vehicle with id ${id} not found`);
     }
 
-    // Use TypeORM's merge to update the entity
     const updatedVehicle = this.vehicleRepository.merge(
       vehicle,
       updateVehicleDto,

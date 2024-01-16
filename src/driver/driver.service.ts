@@ -96,6 +96,19 @@ export class DriverService {
       const vehicle = await this.vehicleService.findOne(
         createAvailabilityDto.vehicleId,
       );
+
+      if (!startWarehouse) {
+        throw new Error('Start warehouse not found');
+      }
+
+      if (!destination) {
+        throw new Error('Destination warehouse not found');
+      }
+
+      if (!vehicle) {
+        throw new Error('Vehicle not found');
+      }
+
       const availability = this.availableDriverRepository.create({
         ...createAvailabilityDto,
         vehicle,
@@ -103,29 +116,50 @@ export class DriverService {
         destination,
         waypoints,
       });
+
       return await this.availableDriverRepository.save(availability);
     } catch (error) {
-      // Handle errors, log or throw a custom exception
       console.error(`Error mentioning availability: ${error.message}`);
       throw new Error('Failed to mention availability');
     }
   }
 
-  async getNonArchivedAvailableDrivers(): Promise<AvailableDriver[]> {
-    return this.availableDriverRepository.find({
-      where: { archived: false },
-    });
+  async getNonArchivedAvailableDrivers() {
+    try {
+      const drivers = await this.availableDriverRepository.find({
+        where: { archived: false },
+        select: [
+          'available_driver_id',
+          'startTime',
+          'endTime',
+          'availableVolume',
+          'availableWeight',
+          'archived',
+        ],
+        relations: [
+          'vehicle',
+          'startWarehouse',
+          'destination',
+          'waypoints',
+          'delivery',
+        ],
+      });
+
+      console.log('Available Drivers:', drivers);
+      return drivers;
+    } catch (error) {
+      console.error('Error fetching available drivers:', error);
+      throw error;
+    }
   }
 
-  async sortAvailableDrivers(): Promise<AvailableDriver[]> {
+  async sortAvailableDrivers() {
     const availableDrivers = await this.getNonArchivedAvailableDrivers();
 
-    // Sort drivers based on calculated score
     const sortedDrivers = availableDrivers.sort((a, b) => {
       const scoreA = this.calculateDriverScore(a);
       const scoreB = this.calculateDriverScore(b);
 
-      // Sort in descending order
       return scoreB - scoreA;
     });
 
@@ -133,14 +167,12 @@ export class DriverService {
   }
 
   calculateDriverScore(a: AvailableDriver): number {
-    // Coefficients for different factors
     const lengthCoefficient = 1 / 8;
     const availableWeightCoefficient = 1 / 8;
     const availableVolumeCoefficient = 1 / 8;
     const scoreCoefficient = 3 / 8;
     const penaltyCoefficient = -(2 / 8);
 
-    // Calculate the score for the driver
     const score =
       lengthCoefficient * a.waypoints.length +
       availableWeightCoefficient * a.availableWeight +

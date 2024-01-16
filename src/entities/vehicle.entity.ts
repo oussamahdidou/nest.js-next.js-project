@@ -5,7 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToOne,
+  JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Driver } from './driver.entity';
 import { AvailableDriver } from './availableDriver.entity';
@@ -19,10 +20,16 @@ export class Vehicle {
   registrationNumber: string;
 
   @Column()
+  licensePlate: string;
+
+  @Column()
   marque: string;
 
   @Column()
   model: string;
+
+  @Column()
+  year: number;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -31,12 +38,12 @@ export class Vehicle {
   updatedAt: Date;
 
   @ManyToOne(() => Driver, (driver) => driver.vehicles)
+  @JoinColumn()
   driver: Driver;
 
-  @OneToOne(
+  @OneToMany(
     () => AvailableDriver,
     (availableDriver) => availableDriver.vehicle,
-    { nullable: true, onDelete: 'CASCADE' },
   )
-  availableDriver: AvailableDriver;
+  availableDrivers: AvailableDriver[];
 }

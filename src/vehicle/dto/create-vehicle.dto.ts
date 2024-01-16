@@ -1,7 +1,4 @@
-// create-vehicle.dto.ts
-
 import { IsNotEmpty, IsString } from 'class-validator';
-// import { Driver } from 'src/entities';
 
 export class CreateVehicleDto {
   @IsNotEmpty()
@@ -15,4 +12,11 @@ export class CreateVehicleDto {
   @IsNotEmpty()
   @IsString()
   registrationNumber: string;
+
+  @IsNotEmpty()
+  @IsString()
+  licensePlate: string;
+
+  @IsNotEmpty()
+  year: number;
 }

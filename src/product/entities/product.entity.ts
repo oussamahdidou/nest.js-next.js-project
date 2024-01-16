@@ -1,6 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Package } from 'src/entities/package.entity';
-import { Warehouse } from 'src/entities/warehouse.entity';
+
+import { Owner, Warehouse } from 'src/entities';
+import { ProductStatus } from 'src/enumerations/product-status.enum';
+
 
 @Entity('products')
 export class Product {
@@ -25,10 +28,23 @@ export class Product {
   @Column({ type: 'date' })
   deliveryDate: Date;
 
-  @ManyToOne(() => Warehouse, warehouse => warehouse.products)
-  @JoinColumn({ name: 'warehouse_id' }) 
-  
-  warehouse: Warehouse;
+  @Column({
+    type: 'enum',
+    enum: ProductStatus,
+    default: ProductStatus.InStock,
+  })
+  status: ProductStatus;
+
+  @ManyToOne(() => Owner, (owner) => owner.products)
+  owner: Owner;
+
+  @ManyToOne(() => Warehouse)
+  startWarehouse: Warehouse;
+
+  @ManyToOne(() => Warehouse)
+  destination: Warehouse;
+
+
   @ManyToOne(() => Package, (packageEntity) => packageEntity.products, {
     onDelete: 'CASCADE',
   })

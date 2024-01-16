@@ -9,6 +9,7 @@ import { WarehouseService } from 'src/warehouse/warehouse.service';
 import { PackageService } from 'src/package/package.service';
 import { DriverService } from 'src/driver/driver.service';
 import { DeliveryStatus } from 'src/enumerations/delivery-status.enum';
+import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 
 @Injectable()
 export class DeliveryService {
@@ -48,14 +49,33 @@ export class DeliveryService {
       });
       return await this.deliveryRepository.save(delivery);
     } catch (error) {
-      // Handle errors, log or throw a custom exception
-      console.error(`Error mentioning availability: ${error.message}`);
-      throw new Error('Failed to mention availability');
+      console.error(`Error Creating the delivery: ${error.message}`);
+      throw new Error('Failed to Creating the delivery');
     }
   }
 
-  async findAll(): Promise<Delivery[]> {
-    return this.deliveryRepository.find();
+  async findAll() {
+    return await this.deliveryRepository.find({
+      relations: [
+        'availableDriver',
+        'startWarehouse',
+        'endWarehouse',
+        'waypoints',
+        'evaluations',
+      ],
+    });
+  }
+
+  async findMyAll(user_id: string): Promise<Delivery[]> {
+    const deliveries = await this.deliveryRepository
+      .createQueryBuilder('delivery')
+      .innerJoin('delivery.availableDriver', 'availableDriver')
+      .innerJoin('availableDriver.vehicle', 'vehicle')
+      .innerJoin('vehicle.driver', 'driver')
+      .where('driver.id = :user_id', { user_id })
+      .getMany();
+
+    return deliveries;
   }
 
   async findOne(deliveryId: number) {
@@ -81,6 +101,36 @@ export class DeliveryService {
         `Failed to remove delivery: ${error.message}`,
       );
     }
+  }
+
+  async update(id: number, updateDeliveryDto: UpdateDeliveryDto) {
+    const delivery = await this.findOne(id);
+
+    if (!delivery) {
+      throw new NotFoundException(`Delivery with id ${id} not found`);
+    }
+
+    const packages = await this.packageService.findPackages(
+      updateDeliveryDto.packages,
+    );
+    const waypoints = await this.waerhoseService.findWarehouses(
+      updateDeliveryDto.waypoints,
+    );
+    const startWarehouse = await this.waerhoseService.findById(
+      updateDeliveryDto.startWarehouse,
+    );
+    const endWarehouse = await this.waerhoseService.findById(
+      updateDeliveryDto.endWarehouse,
+    );
+    this.deliveryRepository.merge(delivery, {
+      ...updateDeliveryDto,
+      packages,
+      waypoints,
+      startWarehouse,
+      endWarehouse,
+    });
+
+    await this.deliveryRepository.save(delivery);
   }
 
   async updateDelevryStatus(id: number, status: DeliveryStatus) {

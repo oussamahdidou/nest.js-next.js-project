@@ -17,8 +17,8 @@ export class AvailableDriver {
   @PrimaryGeneratedColumn()
   available_driver_id: number;
 
-  @OneToOne(() => Vehicle)
-  @JoinColumn({ name: 'vehicle_id' })
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.availableDrivers)
+  @JoinColumn()
   vehicle: Vehicle;
 
   @Column()
@@ -37,11 +37,9 @@ export class AvailableDriver {
   archived: boolean;
 
   @ManyToOne(() => Warehouse)
-  @JoinColumn({ name: 'start_warehouse_id' })
   startWarehouse: Warehouse;
 
   @ManyToOne(() => Warehouse)
-  @JoinColumn({ name: 'destination_warehouse_id' })
   destination: Warehouse;
 
   @ManyToMany(() => Warehouse)
@@ -51,6 +49,5 @@ export class AvailableDriver {
   @OneToOne(() => Delivery, (delivery) => delivery.availableDriver, {
     nullable: true,
   })
-  @JoinColumn()
-  delivery: Delivery | null;
+  delivery: Delivery;
 }

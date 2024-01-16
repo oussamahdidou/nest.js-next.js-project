@@ -7,7 +7,7 @@ export class CreateWarehouseDto {
   city: string;
 
   @IsString()
-  location: string;
+  location: any;
 }
 
 export class UpdateWarehouseDto {
@@ -15,7 +15,7 @@ export class UpdateWarehouseDto {
   city: string;
 
   @IsString()
-  location: string;
+  location: any;
 }
 
 export class GetByIdDto {

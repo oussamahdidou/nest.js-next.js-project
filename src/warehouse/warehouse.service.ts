@@ -1,12 +1,10 @@
-// warehouse.service.ts
-
 import {
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
 import { CreateWarehouseDto, UpdateWarehouseDto } from './dto/warehouse.dto';
 
@@ -19,8 +17,7 @@ export class WarehouseService {
 
   async findById(id: number): Promise<Warehouse> {
     try {
-      const options: FindOneOptions<Warehouse> = { where: { id } };
-      return await this.warehouseRepository.findOneOrFail(options);
+      return await this.warehouseRepository.findOneBy({ id });
     } catch (error) {
       console.error(error);
       throw new NotFoundException('Entrepôt non trouvé.');

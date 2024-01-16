@@ -1,14 +1,16 @@
+import { IsNotEmpty, IsArray } from 'class-validator';
 
 export class CreatePackageDto {
-    readonly id: number;
-    readonly weight: number;
-    readonly dimensions: number;
-  }
-  
- 
-  export class UpdatePackageDto {
-    readonly id ?: number;
-    readonly weight?: number;
-    readonly dimensions?: number;
-  }
-  
+  @IsNotEmpty()
+  weight: number;
+  @IsNotEmpty()
+  dimensions: number;
+  @IsArray()
+  products: number[];
+}
+
+export class UpdatePackageDto {
+  weight?: number;
+  dimensions?: number;
+  products?: number[];
+}

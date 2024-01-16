@@ -6,12 +6,21 @@ import {
   CreatePackageDto,
   UpdatePackageDto,
 } from './dto/create-update-package.dto';
+import { Supervisor } from 'src/entities';
+import { ProductService } from 'src/product/product.service';
+import { ProductStatus } from 'src/enumerations/product-status.enum';
+import { Product } from 'src/product/entities/product.entity';
 
 @Injectable()
 export class PackageService {
   constructor(
     @InjectRepository(Package)
     private readonly packageRepository: Repository<Package>,
+    @InjectRepository(Supervisor)
+    private readonly supervisorRepository: Repository<Supervisor>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+    private productService: ProductService,
   ) {}
 
   async findAll() {
@@ -28,17 +37,47 @@ export class PackageService {
     return foundPackage;
   }
 
-  create(createPackageDto: CreatePackageDto) {
-    const newPackage = this.packageRepository.create(createPackageDto);
+  async create(user_id: string, createPackageDto: CreatePackageDto) {
+    const supervisor = await this.supervisorRepository.findOne({
+      where: { id: user_id },
+    });
+    if (!supervisor) {
+      throw new NotFoundException(`Supervisor with id ${user_id} not found`);
+    }
+
+    const products = await this.productService.findProducts(
+      createPackageDto.products,
+    );
+    if (!products) {
+      throw new NotFoundException(`products not found`);
+    }
+
+    products.forEach((product) => {
+      product.status = ProductStatus.InPackage;
+    });
+
+    const newPackage = this.packageRepository.create({
+      ...createPackageDto,
+      products: products,
+      creator: supervisor,
+    });
+    await this.productRepository.save(products);
     return this.packageRepository.save(newPackage);
   }
 
   async update(id: number, updatePackageDto: UpdatePackageDto) {
-    const updatedPackage = await this.packageRepository.preload({
-      id: +id,
-      ...updatePackageDto,
+    const existingPackage = await this.packageRepository.findOne({
+      where: {
+        packageId: id,
+      },
     });
-    return this.packageRepository.save(updatedPackage);
+
+    if (!existingPackage) {
+      throw new NotFoundException(`Package with ID ${id} not found`);
+    }
+    Object.assign(existingPackage, updatePackageDto);
+
+    return this.packageRepository.save(existingPackage);
   }
 
   async remove(id: number) {
