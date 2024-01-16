@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { AvailableDriver } from './availableDriver.entity';
 import { Supervisor } from './supervisor.entity';
+import { Product } from 'src/product/entities/product.entity';
 
 @Entity('warehouses')
 export class Warehouse {
@@ -18,6 +19,9 @@ export class Warehouse {
 
   @Column({ type: 'point' })
   location: Point;
+
+  @OneToMany(() => Product, product => product.warehouse)
+  products: Product[];
 
   @OneToMany(
     () => AvailableDriver,
